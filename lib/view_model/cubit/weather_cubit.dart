@@ -1,5 +1,6 @@
 import 'package:bloc/bloc.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:meta/meta.dart';
@@ -12,7 +13,6 @@ class WeatherCubit extends Cubit<WeatherState> {
   WeatherCubit() : super(WeatherInitial());
 
   static WeatherCubit get(context) => BlocProvider.of(context);
-
 
   WeatherData? weatherData;
 
@@ -38,7 +38,35 @@ class WeatherCubit extends Cubit<WeatherState> {
 
     if (response.statusCode == 200) {
       weatherData = WeatherData.fromJson(response.data);
+      print(weatherData!.current!.condtion!.code!);
       emit(WeatherSuccessState());
+    }
+  }
+
+  String? getIcon(int weatherCode) {
+    if (weatherData!.current!.isDay! == true) {
+      switch (weatherCode) {
+        case 1000:
+          return "assets/images/sunny.jpeg";
+        case 1003:
+          return "assets/images/partly-cloudy-sky.jpg";
+        case 1030:
+          return "assets/images/mist-fog.jpg";
+        case 1009:
+          return "assets/images/Overcast_Mehamn.jpg";
+      }
+      emit(WeatherImageBackgroundChangeSuccess());
+    } else {
+      switch (weatherCode) {
+        case 1000:
+          return "assets/images/crescent-moon-with-visible-craters-mountains-natural-clear-sky.jpg";
+        case 1003:
+          return "assets/images/partly-cloudy-sky.jpg";
+        case 1030:
+          return "assets/images/mist-fog.jpg";
+        case 1009:
+          return "assets/images/Overcast_Mehamn.jpg";
+      }
     }
   }
 }

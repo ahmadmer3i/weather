@@ -5,10 +5,12 @@ abstract class WeatherState {}
 
 class WeatherInitial extends WeatherState {}
 
-class WeatherLoadingState extends WeatherState{}
+class WeatherLoadingState extends WeatherState {}
 
-class WeatherSuccessState extends WeatherState{}
+class WeatherSuccessState extends WeatherState {}
 
-class WeatherLocationLoadingState extends WeatherState{}
+class WeatherLocationLoadingState extends WeatherState {}
 
-class WeatherLocationSuccessState extends WeatherState{}
+class WeatherLocationSuccessState extends WeatherState {}
+
+class WeatherImageBackgroundChangeSuccess extends WeatherState {}
