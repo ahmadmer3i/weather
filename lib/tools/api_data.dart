@@ -1,5 +1,4 @@
-class ApiData{
-
-static String apiLink = "http://api.weatherapi.com/v1/current.json?key=1761442f218c4ffab67104207210711";
-
+class ApiData {
+  static String apiLink =
+      "http://api.weatherapi.com/v1/forecast.json?key=9226ef669dd34eb8838143205210811";
 }

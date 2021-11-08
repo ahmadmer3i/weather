@@ -1,10 +1,12 @@
 class WeatherData {
+  Forecast? forecast;
   Location? location;
   Current? current;
   WeatherData({required this.location, required this.current});
   WeatherData.fromJson(Map<String, dynamic> json) {
     location = Location.fromJson(json);
     current = Current.fromJson(json);
+    forecast = Forecast.fromJson(json);
   }
 }
 
@@ -39,7 +41,7 @@ class Current {
   double? feelslikeC;
   double? feelslikeF;
   double? uv;
-  Condtion? condtion;
+  WeatherCondition? condtion;
   Current.fromJson(Map<String, dynamic> json) {
     feelslikeC = json["current"]["feelsike_c"];
     feelslikeF = json["current"]["feelslike_f"];
@@ -53,17 +55,24 @@ class Current {
     windDegree = json["current"]["wind_degree"];
     windDir = json["current"]["wind_dir"];
     windKph = json["current"]["wind_kph"];
-    condtion = Condtion.fromJson(json);
+    condtion = WeatherCondition.fromJson(json);
   }
 }
 
-class Condtion {
+class WeatherCondition {
   String? text;
   String? icon;
   int? code;
-  Condtion.fromJson(Map<String, dynamic> json) {
+  WeatherCondition.fromJson(Map<String, dynamic> json) {
     code = json["current"]["condition"]["code"];
     icon = json["current"]["condition"]["icon"];
     text = json["current"]["condition"]["text"];
+  }
+}
+
+class Forecast {
+  String? date;
+  Forecast.fromJson(Map<String, dynamic> json) {
+    date = json["forecast"]["forecastday"][0]["date"];
   }
 }

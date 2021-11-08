@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
 import 'package:weather_app/view_model/cubit/weather_cubit.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -28,7 +29,7 @@ class HomeScreen extends StatelessWidget {
                         decoration: BoxDecoration(
                           image: DecorationImage(
                             image: AssetImage(
-                              cubit.getIcon(
+                              cubit.getImage(
                                   cubit.weatherData!.current!.condtion!.code!)!,
                             ),
                             fit: BoxFit.cover,
@@ -69,6 +70,8 @@ class HomeScreen extends StatelessWidget {
                                             return null;
                                           },
                                           decoration: InputDecoration(
+                                            prefixIcon: const Icon(Icons.map),
+                                            isDense: true,
                                             enabledBorder: OutlineInputBorder(
                                               borderSide: const BorderSide(
                                                   color: Colors.white),
@@ -141,16 +144,53 @@ class HomeScreen extends StatelessWidget {
                                     ],
                                   ),
                                 ),
-                                Image.network(
-                                  "http:${cubit.weatherData?.current!.condtion!.icon}",
+                                // Image.network(
+                                //   "http:${cubit.weatherData?.current!.condtion!.icon}",
+                                // ),
+                                Icon(
+                                  cubit.getIcon(
+                                    cubit.weatherData!.current!.condtion!.code!,
+                                  ),
+                                  color: cubit.weatherData!.current!.isDay!
+                                      ? Colors.black
+                                      : Colors.white,
+                                  size: 100,
+                                ),
+                                const SizedBox(
+                                  height: 50,
                                 ),
                                 Text(
                                   cubit.weatherData!.current!.condtion!.text!,
                                   style: TextStyle(
-                                      color: cubit.weatherData!.current!.isDay!
-                                          ? Colors.black
-                                          : Colors.white),
+                                    color: cubit.weatherData!.current!.isDay!
+                                        ? Colors.black
+                                        : Colors.white,
+                                    fontSize: 20,
+                                  ),
                                 ),
+                                Text(
+                                  DateFormat.yMMMd().format(DateTime.parse(
+                                      cubit.weatherData!.forecast!.date!)),
+                                  style: TextStyle(
+                                    color: cubit.weatherData!.current!.isDay!
+                                        ? Colors.black
+                                        : Colors.white,
+                                    fontSize: 20,
+                                  ),
+                                ),
+                                const SizedBox(
+                                  height: 40,
+                                ),
+                                OutlinedButton(
+                                    onPressed: () {
+                                      cubit.dioData(
+                                          "${cubit.position!.latitude},${cubit.position!.longitude}");
+                                    },
+                                    child: const Text(
+                                      "Get Current Weahter",
+                                      style:
+                                          TextStyle(color: Colors.deepOrange),
+                                    ))
                               ],
                             ),
                           ),
