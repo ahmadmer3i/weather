@@ -25,7 +25,7 @@ class WeatherCubit extends Cubit<WeatherState> {
 
     geolocatorPlatform
         .getCurrentPosition(
-      desiredAccuracy: LocationAccuracy.high,
+      desiredAccuracy: LocationAccuracy.bestForNavigation,
     )
         .then((position) {
       this.position = position;
@@ -38,11 +38,16 @@ class WeatherCubit extends Cubit<WeatherState> {
     emit(WeatherLoadingState());
     Response response;
     var dio = Dio();
-    response = await dio.get(ApiData.apiLink, queryParameters: {"q": data});
+    response = await dio.get(ApiData.apiLink,
+        queryParameters: {"q": data, "days": "3", "lang": "en"});
 
     if (response.statusCode == 200) {
       weatherData = WeatherData.fromJson(response.data);
-      print(weatherData!.current!.condtion!.code!);
+      print(response.data["forecast"]["forecastday"][0]);
+      print(weatherData!.forecastData!.forecastDay![0].dayHourData!.dayHour[1]
+          .dayHourCondition!.text!);
+      print(weatherData!.forecastData!.forecastDay!.length);
+      print(weatherData!.forecastData!.forecastDay![0].astro!.moonIllumination);
       emit(WeatherSuccessState());
     }
   }
@@ -57,7 +62,7 @@ class WeatherCubit extends Cubit<WeatherState> {
         case 1030:
           return "assets/images/mist-fog.jpg";
         case 1009:
-          return "assets/images/Overcast_Mehamn.jpg";
+          return "assets/images/Overcast.jpg";
       }
       emit(WeatherImageBackgroundChangeSuccess());
     } else {
@@ -69,22 +74,22 @@ class WeatherCubit extends Cubit<WeatherState> {
         case 1030:
           return "assets/images/mist-fog.jpg";
         case 1009:
-          return "assets/images/Overcast_Mehamn.jpg";
+          return "assets/images/overcast.jpg";
       }
     }
   }
 
-  IconData? getIcon(int weatherCode) {
-    if (weatherData!.current!.isDay! == true) {
+  IconData? getIcon({required int weatherCode, required bool isDay}) {
+    if (isDay == true) {
       switch (weatherCode) {
         case 1000:
           return WeatherIcons.day_sunny;
         case 1003:
-          return WeatherIcons.day_sunny;
+          return WeatherIcons.day_cloudy;
         case 1030:
-          return WeatherIcons.day_sunny;
+          return WeatherIcons.day_fog;
         case 1009:
-          return WeatherIcons.day_sunny;
+          return WeatherIcons.day_cloudy;
       }
       emit(WeatherImageBackgroundChangeSuccess());
     } else {
@@ -92,12 +97,22 @@ class WeatherCubit extends Cubit<WeatherState> {
         case 1000:
           return WeatherIcons.night_clear;
         case 1003:
-          return WeatherIcons.night_clear;
+          return WeatherIcons.night_cloudy;
         case 1030:
-          return WeatherIcons.night_clear;
+          return WeatherIcons.night_fog;
         case 1009:
-          return WeatherIcons.night_clear;
+          return WeatherIcons.night_cloudy;
       }
     }
+  }
+
+  List<DayHour> getTodayData() {
+    return weatherData!.forecastData!.forecastDay![0].dayHourData!.dayHour
+        .where((element) => element.time!.hour >= DateTime.now().hour)
+        .toList();
+  }
+
+  List<ForecastDay?> getThreeDaysData() {
+    return weatherData!.forecastData!.forecastDay!;
   }
 }

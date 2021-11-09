@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
@@ -13,7 +14,6 @@ class HomeScreen extends StatelessWidget {
     return Builder(
       builder: (context) {
         var cubit = WeatherCubit.get(context);
-
         return BlocConsumer<WeatherCubit, WeatherState>(
           listener: (context, state) {},
           builder: (context, state) {
@@ -29,8 +29,8 @@ class HomeScreen extends StatelessWidget {
                         decoration: BoxDecoration(
                           image: DecorationImage(
                             image: AssetImage(
-                              cubit.getImage(
-                                  cubit.weatherData!.current!.condtion!.code!)!,
+                              cubit.getImage(cubit
+                                  .weatherData!.current!.condition!.code!)!,
                             ),
                             fit: BoxFit.cover,
                           ),
@@ -39,10 +39,11 @@ class HomeScreen extends StatelessWidget {
                           child: Padding(
                             padding: const EdgeInsets.all(20),
                             child: Column(
+                              mainAxisSize: MainAxisSize.min,
                               children: [
                                 Row(
                                   children: [
-                                    Expanded(
+                                    Flexible(
                                       child: Form(
                                         key: formKey,
                                         child: TextFormField(
@@ -70,7 +71,21 @@ class HomeScreen extends StatelessWidget {
                                             return null;
                                           },
                                           decoration: InputDecoration(
-                                            prefixIcon: const Icon(Icons.map),
+                                            suffixIcon: IconButton(
+                                              icon: Icon(
+                                                CupertinoIcons.location_fill,
+                                                color: cubit.weatherData!
+                                                        .current!.isDay!
+                                                    ? Colors.black
+                                                    : Colors.white,
+                                              ),
+                                              onPressed: () {
+                                                cubit.dioData(
+                                                    "${cubit.position!.latitude},${cubit.position!.longitude}");
+                                              },
+                                            ),
+                                            prefixIcon:
+                                                const Icon(Icons.apartment),
                                             isDense: true,
                                             enabledBorder: OutlineInputBorder(
                                               borderSide: const BorderSide(
@@ -113,22 +128,24 @@ class HomeScreen extends StatelessWidget {
                                 const SizedBox(
                                   height: 20,
                                 ),
-                                Flexible(
+                                SingleChildScrollView(
                                   child: Column(
-                                    mainAxisSize: MainAxisSize.min,
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceEvenly,
                                     children: [
-                                      Flexible(
-                                        child: Text(
-                                          cubit.weatherData!.location!.name!,
-                                          style: TextStyle(
-                                            color: cubit.weatherData!.current!
-                                                    .isDay!
-                                                ? Colors.black
-                                                : Colors.white,
-                                            fontSize: 24,
-                                            fontWeight: FontWeight.w600,
-                                          ),
+                                      Text(
+                                        cubit.weatherData!.location!.name!,
+                                        style: TextStyle(
+                                          color:
+                                              cubit.weatherData!.current!.isDay!
+                                                  ? Colors.black
+                                                  : Colors.white,
+                                          fontSize: 24,
+                                          fontWeight: FontWeight.w600,
                                         ),
+                                      ),
+                                      const SizedBox(
+                                        height: 20,
                                       ),
                                       Text(
                                         "${cubit.weatherData!.current!.tempC!.toStringAsFixed(0)}º",
@@ -141,56 +158,170 @@ class HomeScreen extends StatelessWidget {
                                           fontWeight: FontWeight.w600,
                                         ),
                                       ),
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          Text(
+                                            "min: ${cubit.weatherData!.forecastData!.forecastDay![0].dayData!.minTempC}º",
+                                            style: const TextStyle(
+                                              fontSize: 16,
+                                            ),
+                                          ),
+                                          const SizedBox(
+                                            width: 20,
+                                          ),
+                                          Text(
+                                            "max: ${cubit.weatherData!.forecastData!.forecastDay![0].dayData!.maxTempC}º",
+                                            style: const TextStyle(
+                                              fontSize: 16,
+                                            ),
+                                          ),
+                                        ],
+                                      )
                                     ],
                                   ),
                                 ),
-                                // Image.network(
-                                //   "http:${cubit.weatherData?.current!.condtion!.icon}",
-                                // ),
-                                Icon(
-                                  cubit.getIcon(
-                                    cubit.weatherData!.current!.condtion!.code!,
+                                Expanded(
+                                  child: Icon(
+                                    cubit.getIcon(
+                                      isDay: cubit.weatherData!.current!.isDay!,
+                                      weatherCode: cubit.weatherData!.current!
+                                          .condition!.code!,
+                                    ),
+                                    color: cubit.weatherData!.current!.isDay!
+                                        ? Colors.black
+                                        : Colors.white,
+                                    size: 100,
                                   ),
-                                  color: cubit.weatherData!.current!.isDay!
-                                      ? Colors.black
-                                      : Colors.white,
-                                  size: 100,
                                 ),
                                 const SizedBox(
                                   height: 50,
                                 ),
-                                Text(
-                                  cubit.weatherData!.current!.condtion!.text!,
-                                  style: TextStyle(
-                                    color: cubit.weatherData!.current!.isDay!
-                                        ? Colors.black
-                                        : Colors.white,
-                                    fontSize: 20,
+                                Expanded(
+                                  child: Text(
+                                    cubit
+                                        .weatherData!.current!.condition!.text!,
+                                    style: TextStyle(
+                                      color: cubit.weatherData!.current!.isDay!
+                                          ? Colors.black
+                                          : Colors.white,
+                                      fontSize: 20,
+                                    ),
                                   ),
                                 ),
-                                Text(
-                                  DateFormat.yMMMd().format(DateTime.parse(
-                                      cubit.weatherData!.forecast!.date!)),
-                                  style: TextStyle(
-                                    color: cubit.weatherData!.current!.isDay!
-                                        ? Colors.black
-                                        : Colors.white,
-                                    fontSize: 20,
-                                  ),
-                                ),
-                                const SizedBox(
-                                  height: 40,
-                                ),
-                                OutlinedButton(
-                                    onPressed: () {
-                                      cubit.dioData(
-                                          "${cubit.position!.latitude},${cubit.position!.longitude}");
+                                Flexible(
+                                  child: ListView.separated(
+                                    scrollDirection: Axis.horizontal,
+                                    shrinkWrap: true,
+                                    itemBuilder: (context, index) {
+                                      return SizedBox(
+                                        width:
+                                            MediaQuery.of(context).size.width *
+                                                0.3,
+                                        child: Card(
+                                          color: Colors.white.withOpacity(0.04),
+                                          elevation: 0,
+                                          child: Column(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceEvenly,
+                                            children: [
+                                              index == 0
+                                                  ? Text(
+                                                      "now",
+                                                      style: TextStyle(
+                                                          fontSize: 20,
+                                                          color: cubit
+                                                                  .weatherData!
+                                                                  .current!
+                                                                  .isDay!
+                                                              ? Colors.black
+                                                              : Colors.white),
+                                                    )
+                                                  : Text(
+                                                      DateFormat.jm().format(
+                                                        cubit
+                                                            .getTodayData()[
+                                                                index]
+                                                            .time!,
+                                                      ),
+                                                      style: TextStyle(
+                                                        fontSize: 20,
+                                                        color: cubit
+                                                                .weatherData!
+                                                                .current!
+                                                                .isDay!
+                                                            ? Colors.black
+                                                            : Colors.white,
+                                                      ),
+                                                    ),
+                                              Text(
+                                                cubit
+                                                    .getTodayData()[index]
+                                                    .tempC!
+                                                    .toStringAsFixed(0),
+                                                style: TextStyle(
+                                                  color: cubit.weatherData!
+                                                          .current!.isDay!
+                                                      ? Colors.black
+                                                      : Colors.white,
+                                                ),
+                                              ),
+                                              Icon(
+                                                cubit.getIcon(
+                                                  isDay: cubit
+                                                      .getTodayData()[index]
+                                                      .isDay!,
+                                                  weatherCode: cubit
+                                                      .getTodayData()[index]
+                                                      .dayHourCondition!
+                                                      .code!,
+                                                ),
+                                                color: cubit.weatherData!
+                                                        .current!.isDay!
+                                                    ? Colors.black
+                                                    : Colors.white,
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      );
                                     },
-                                    child: const Text(
-                                      "Get Current Weahter",
-                                      style:
-                                          TextStyle(color: Colors.deepOrange),
-                                    ))
+                                    separatorBuilder: (context, index) =>
+                                        const SizedBox(
+                                      width: 2,
+                                    ),
+                                    itemCount: cubit.getTodayData().length,
+                                  ),
+                                ),
+                                Card(
+                                    child: ListView.separated(
+                                  itemCount: cubit.getThreeDaysData().length,
+                                  separatorBuilder: (context, index) =>
+                                      const SizedBox(
+                                    height: 5,
+                                  ),
+                                  itemBuilder: (context, index) {
+                                    print(cubit.getThreeDaysData().length);
+                                    return Row(
+                                      children: [
+                                        index == 0
+                                            ? const Text("Today")
+                                            : Text(DateFormat.EEEE().format(
+                                                DateTime.parse(cubit
+                                                    .getThreeDaysData()[index]!
+                                                    .date!))),
+                                        Text(cubit
+                                            .getThreeDaysData()[index]!
+                                            .dayData!
+                                            .minTempC!
+                                            .toStringAsFixed(0))
+                                      ],
+                                    );
+                                  },
+                                  shrinkWrap: true,
+                                  physics: const NeverScrollableScrollPhysics(),
+                                )),
                               ],
                             ),
                           ),

@@ -14,3 +14,5 @@ class WeatherLocationLoadingState extends WeatherState {}
 class WeatherLocationSuccessState extends WeatherState {}
 
 class WeatherImageBackgroundChangeSuccess extends WeatherState {}
+
+class WeatherGetTodayDataSuccess extends WeatherState {}
