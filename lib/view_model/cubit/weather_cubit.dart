@@ -43,11 +43,6 @@ class WeatherCubit extends Cubit<WeatherState> {
 
     if (response.statusCode == 200) {
       weatherData = WeatherData.fromJson(response.data);
-      print(response.data["forecast"]["forecastday"][0]);
-      print(weatherData!.forecastData!.forecastDay![0].dayHourData!.dayHour[1]
-          .dayHourCondition!.text!);
-      print(weatherData!.forecastData!.forecastDay!.length);
-      print(weatherData!.forecastData!.forecastDay![0].astro!.moonIllumination);
       emit(WeatherSuccessState());
     }
   }
