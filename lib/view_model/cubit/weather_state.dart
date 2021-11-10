@@ -16,3 +16,5 @@ class WeatherLocationSuccessState extends WeatherState {}
 class WeatherImageBackgroundChangeSuccess extends WeatherState {}
 
 class WeatherGetTodayDataSuccess extends WeatherState {}
+
+class WeatherGetThreeDayDataSuccess extends WeatherState {}

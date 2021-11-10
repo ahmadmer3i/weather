@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -15,7 +17,12 @@ class HomeScreen extends StatelessWidget {
       builder: (context) {
         var cubit = WeatherCubit.get(context);
         return BlocConsumer<WeatherCubit, WeatherState>(
-          listener: (context, state) {},
+          listener: (context, state) {
+            if (state is WeatherSuccessState) {
+              cubit.getTodayData();
+              cubit.getThreeDaysData();
+            }
+          },
           builder: (context, state) {
             return GestureDetector(
               onTap: () {
@@ -24,7 +31,24 @@ class HomeScreen extends StatelessWidget {
               child: Scaffold(
                 body: state is WeatherLoadingState ||
                         state is WeatherLocationLoadingState
-                    ? const Center(child: CircularProgressIndicator())
+                    ? Container(
+                        width: double.infinity,
+                        height: double.infinity,
+                        decoration: const BoxDecoration(
+                          image: DecorationImage(
+                            image: AssetImage(
+                              "assets/images/sunny.jpeg",
+                            ),
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                        child: Center(
+                            child: Platform.isIOS
+                                ? const CupertinoActivityIndicator(
+                                    radius: 20,
+                                  )
+                                : const CircularProgressIndicator()),
+                      )
                     : Container(
                         decoration: BoxDecoration(
                           image: DecorationImage(
@@ -71,23 +95,61 @@ class HomeScreen extends StatelessWidget {
                                             return null;
                                           },
                                           decoration: InputDecoration(
-                                            suffixIcon: IconButton(
-                                              icon: Icon(
-                                                CupertinoIcons.location_fill,
-                                                color: cubit.weatherData!
-                                                        .current!.isDay!
-                                                    ? Colors.black
-                                                    : Colors.white,
-                                              ),
-                                              onPressed: () {
-                                                cubit.dioData(
-                                                    "${cubit.position!.latitude},${cubit.position!.longitude}");
-                                              },
+                                            suffixIcon: Row(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                IconButton(
+                                                  icon: Icon(
+                                                    CupertinoIcons
+                                                        .location_fill,
+                                                    color: cubit.weatherData!
+                                                            .current!.isDay!
+                                                        ? Colors.black
+                                                        : Colors.white,
+                                                  ),
+                                                  onPressed: () {
+                                                    cubit.dioData(
+                                                        "${cubit.position!.latitude},${cubit.position!.longitude}");
+                                                  },
+                                                ),
+                                                Flexible(
+                                                  child: IconButton(
+                                                    onPressed: () {
+                                                      if (formKey.currentState!
+                                                          .validate()) {
+                                                        cubit.dioData(
+                                                            locationController
+                                                                .text);
+                                                      }
+                                                    },
+                                                    icon: Icon(
+                                                      Icons.search,
+                                                      color: cubit.weatherData!
+                                                              .current!.isDay!
+                                                          ? Colors.black
+                                                          : Colors.white,
+                                                    ),
+                                                  ),
+                                                )
+                                              ],
                                             ),
                                             prefixIcon:
                                                 const Icon(Icons.apartment),
                                             isDense: true,
+                                            focusedErrorBorder:
+                                                OutlineInputBorder(
+                                              borderSide: const BorderSide(
+                                                  color: Colors.white),
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                            ),
                                             enabledBorder: OutlineInputBorder(
+                                              borderSide: const BorderSide(
+                                                  color: Colors.white),
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                            ),
+                                            errorBorder: OutlineInputBorder(
                                               borderSide: const BorderSide(
                                                   color: Colors.white),
                                               borderRadius:
@@ -114,15 +176,6 @@ class HomeScreen extends StatelessWidget {
                                     const SizedBox(
                                       width: 10,
                                     ),
-                                    ElevatedButton(
-                                      onPressed: () {
-                                        if (formKey.currentState!.validate()) {
-                                          cubit
-                                              .dioData(locationController.text);
-                                        }
-                                      },
-                                      child: const Text("Search"),
-                                    )
                                   ],
                                 ),
                                 const SizedBox(
@@ -163,7 +216,7 @@ class HomeScreen extends StatelessWidget {
                                             MainAxisAlignment.center,
                                         children: [
                                           Text(
-                                            "min: ${cubit.weatherData!.forecastData!.forecastDay![0].dayData!.minTempC}º",
+                                            "min: ${cubit.weatherData!.forecastData!.forecastDay![0].dayData!.minTempC!.toStringAsFixed(0)}º",
                                             style: const TextStyle(
                                               fontSize: 16,
                                             ),
@@ -172,7 +225,7 @@ class HomeScreen extends StatelessWidget {
                                             width: 20,
                                           ),
                                           Text(
-                                            "max: ${cubit.weatherData!.forecastData!.forecastDay![0].dayData!.maxTempC}º",
+                                            "max: ${cubit.weatherData!.forecastData!.forecastDay![0].dayData!.maxTempC!.toStringAsFixed(0)}º",
                                             style: const TextStyle(
                                               fontSize: 16,
                                             ),
@@ -210,7 +263,7 @@ class HomeScreen extends StatelessWidget {
                                     ),
                                   ),
                                 ),
-                                Flexible(
+                                Expanded(
                                   child: ListView.separated(
                                     scrollDirection: Axis.horizontal,
                                     shrinkWrap: true,
@@ -220,67 +273,50 @@ class HomeScreen extends StatelessWidget {
                                             MediaQuery.of(context).size.width *
                                                 0.3,
                                         child: Card(
-                                          color: Colors.white.withOpacity(0.04),
+                                          color: Colors.black.withOpacity(0.2),
                                           elevation: 0,
                                           child: Column(
                                             mainAxisAlignment:
                                                 MainAxisAlignment.spaceEvenly,
                                             children: [
                                               index == 0
-                                                  ? Text(
+                                                  ? const Text(
                                                       "now",
                                                       style: TextStyle(
-                                                          fontSize: 20,
-                                                          color: cubit
-                                                                  .weatherData!
-                                                                  .current!
-                                                                  .isDay!
-                                                              ? Colors.black
-                                                              : Colors.white),
+                                                        fontSize: 20,
+                                                        color: Colors.white,
+                                                        fontWeight:
+                                                            FontWeight.w600,
+                                                      ),
                                                     )
                                                   : Text(
                                                       DateFormat.jm().format(
                                                         cubit
-                                                            .getTodayData()[
-                                                                index]
-                                                            .time!,
+                                                            .today[index].time!,
                                                       ),
-                                                      style: TextStyle(
+                                                      style: const TextStyle(
                                                         fontSize: 20,
-                                                        color: cubit
-                                                                .weatherData!
-                                                                .current!
-                                                                .isDay!
-                                                            ? Colors.black
-                                                            : Colors.white,
+                                                        color: Colors.white,
+                                                        fontWeight:
+                                                            FontWeight.w600,
                                                       ),
                                                     ),
                                               Text(
-                                                cubit
-                                                    .getTodayData()[index]
-                                                    .tempC!
-                                                    .toStringAsFixed(0),
-                                                style: TextStyle(
-                                                  color: cubit.weatherData!
-                                                          .current!.isDay!
-                                                      ? Colors.black
-                                                      : Colors.white,
+                                                "${cubit.today[index].tempC!.toStringAsFixed(0)}º",
+                                                style: const TextStyle(
+                                                  color: Colors.white,
                                                 ),
                                               ),
                                               Icon(
                                                 cubit.getIcon(
-                                                  isDay: cubit
-                                                      .getTodayData()[index]
-                                                      .isDay!,
+                                                  isDay:
+                                                      cubit.today[index].isDay!,
                                                   weatherCode: cubit
-                                                      .getTodayData()[index]
+                                                      .today[index]
                                                       .dayHourCondition!
                                                       .code!,
                                                 ),
-                                                color: cubit.weatherData!
-                                                        .current!.isDay!
-                                                    ? Colors.black
-                                                    : Colors.white,
+                                                color: Colors.white,
                                               ),
                                             ],
                                           ),
@@ -291,37 +327,124 @@ class HomeScreen extends StatelessWidget {
                                         const SizedBox(
                                       width: 2,
                                     ),
-                                    itemCount: cubit.getTodayData().length,
+                                    itemCount: cubit.today.length,
                                   ),
                                 ),
                                 Card(
-                                    child: ListView.separated(
-                                  itemCount: cubit.getThreeDaysData().length,
-                                  separatorBuilder: (context, index) =>
-                                      const SizedBox(
-                                    height: 5,
+                                  color: Colors.black.withOpacity(0.2),
+                                  elevation: 0,
+                                  child: ListView.separated(
+                                    itemCount: cubit.threeDays.length,
+                                    separatorBuilder: (context, index) =>
+                                        const SizedBox(
+                                      height: 10,
+                                    ),
+                                    itemBuilder: (context, index) {
+                                      return Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: Row(
+                                          children: [
+                                            index == 0
+                                                ? SizedBox(
+                                                    width:
+                                                        (MediaQuery.of(context)
+                                                                    .size
+                                                                    .width -
+                                                                60) /
+                                                            3,
+                                                    child: const Text(
+                                                      "Today",
+                                                      style: TextStyle(
+                                                        color: Colors.white,
+                                                      ),
+                                                    ),
+                                                  )
+                                                : SizedBox(
+                                                    width:
+                                                        (MediaQuery.of(context)
+                                                                    .size
+                                                                    .width -
+                                                                60) /
+                                                            3,
+                                                    child: Text(
+                                                      DateFormat.EEEE().format(
+                                                        DateTime.parse(
+                                                          cubit
+                                                              .threeDays[index]!
+                                                              .date!,
+                                                        ),
+                                                      ),
+                                                      style: const TextStyle(
+                                                        color: Colors.white,
+                                                      ),
+                                                    ),
+                                                  ),
+                                            SizedBox(
+                                              width: (MediaQuery.of(context)
+                                                          .size
+                                                          .width -
+                                                      80) /
+                                                  3,
+                                              child: Center(
+                                                child: Icon(
+                                                  cubit.getIcon(
+                                                    weatherCode: cubit
+                                                        .threeDays[index]!
+                                                        .dayData!
+                                                        .dayCondition!
+                                                        .code!,
+                                                    isDay: true,
+                                                  ),
+                                                  color: Colors.white,
+                                                ),
+                                              ),
+                                            ),
+                                            SizedBox(
+                                              width: (MediaQuery.of(context)
+                                                          .size
+                                                          .width -
+                                                      60) /
+                                                  3,
+                                              child: Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.end,
+                                                children: [
+                                                  Text(
+                                                    "${cubit.threeDays[index]!.dayData!.minTempC!.toStringAsFixed(0)}º",
+                                                    style: const TextStyle(
+                                                      color: Colors.white,
+                                                    ),
+                                                  ),
+                                                  const SizedBox(
+                                                    width: 10,
+                                                  ),
+                                                  const Text(
+                                                    "-",
+                                                    style: TextStyle(
+                                                      color: Colors.white,
+                                                    ),
+                                                  ),
+                                                  const SizedBox(
+                                                    width: 10,
+                                                  ),
+                                                  Text(
+                                                    "${cubit.threeDays[index]!.dayData!.maxTempC!.toStringAsFixed(0)}º",
+                                                    style: const TextStyle(
+                                                      color: Colors.white,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      );
+                                    },
+                                    shrinkWrap: true,
+                                    physics:
+                                        const NeverScrollableScrollPhysics(),
                                   ),
-                                  itemBuilder: (context, index) {
-                                    print(cubit.getThreeDaysData().length);
-                                    return Row(
-                                      children: [
-                                        index == 0
-                                            ? const Text("Today")
-                                            : Text(DateFormat.EEEE().format(
-                                                DateTime.parse(cubit
-                                                    .getThreeDaysData()[index]!
-                                                    .date!))),
-                                        Text(cubit
-                                            .getThreeDaysData()[index]!
-                                            .dayData!
-                                            .minTempC!
-                                            .toStringAsFixed(0))
-                                      ],
-                                    );
-                                  },
-                                  shrinkWrap: true,
-                                  physics: const NeverScrollableScrollPhysics(),
-                                )),
+                                ),
                               ],
                             ),
                           ),

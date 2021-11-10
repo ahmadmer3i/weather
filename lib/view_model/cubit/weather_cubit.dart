@@ -2,11 +2,11 @@ import 'package:bloc/bloc.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:fluttericon/iconic_icons.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:meta/meta.dart';
 import 'package:weather_app/tools/api_data.dart';
 import 'package:weather_app/tools/weather_data.dart';
-import 'package:weather_icons/weather_icons.dart';
 
 part 'weather_state.dart';
 
@@ -57,7 +57,7 @@ class WeatherCubit extends Cubit<WeatherState> {
         case 1030:
           return "assets/images/mist-fog.jpg";
         case 1009:
-          return "assets/images/Overcast.jpg";
+          return "assets/images/overcast.jpg";
       }
       emit(WeatherImageBackgroundChangeSuccess());
     } else {
@@ -71,6 +71,7 @@ class WeatherCubit extends Cubit<WeatherState> {
         case 1009:
           return "assets/images/overcast.jpg";
       }
+      emit(WeatherImageBackgroundChangeSuccess());
     }
   }
 
@@ -78,36 +79,41 @@ class WeatherCubit extends Cubit<WeatherState> {
     if (isDay == true) {
       switch (weatherCode) {
         case 1000:
-          return WeatherIcons.day_sunny;
+          return Iconic.sun;
         case 1003:
-          return WeatherIcons.day_cloudy;
+          return Iconic.cloud;
         case 1030:
-          return WeatherIcons.day_fog;
+          return Iconic.cloud;
         case 1009:
-          return WeatherIcons.day_cloudy;
+          return Iconic.cloud;
       }
       emit(WeatherImageBackgroundChangeSuccess());
     } else {
       switch (weatherCode) {
         case 1000:
-          return WeatherIcons.night_clear;
+          return Iconic.moon;
         case 1003:
-          return WeatherIcons.night_cloudy;
+          return Iconic.cloud;
         case 1030:
-          return WeatherIcons.night_fog;
+          return Iconic.cloud;
         case 1009:
-          return WeatherIcons.night_cloudy;
+          return Iconic.cloud;
       }
+      emit(WeatherImageBackgroundChangeSuccess());
     }
   }
 
-  List<DayHour> getTodayData() {
-    return weatherData!.forecastData!.forecastDay![0].dayHourData!.dayHour
+  List<DayHour> today = [];
+  List<ForecastDay?> threeDays = [];
+  getTodayData() {
+    today = weatherData!.forecastData!.forecastDay![0].dayHourData!.dayHour
         .where((element) => element.time!.hour >= DateTime.now().hour)
         .toList();
+    emit(WeatherGetTodayDataSuccess());
   }
 
-  List<ForecastDay?> getThreeDaysData() {
-    return weatherData!.forecastData!.forecastDay!;
+  getThreeDaysData() {
+    threeDays = weatherData!.forecastData!.forecastDay!;
+    emit(WeatherGetThreeDayDataSuccess());
   }
 }
