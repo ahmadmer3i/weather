@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fluttericon/iconic_icons.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:meta/meta.dart';
+import 'package:weather_app/services/internet_service.dart';
 import 'package:weather_app/tools/api_data.dart';
 import 'package:weather_app/tools/weather_data.dart';
 
@@ -14,6 +15,7 @@ class WeatherCubit extends Cubit<WeatherState> {
   WeatherCubit() : super(WeatherInitial());
 
   Position? position;
+  Response? response;
 
   static WeatherCubit get(context) => BlocProvider.of(context);
 
@@ -34,17 +36,18 @@ class WeatherCubit extends Cubit<WeatherState> {
     });
   }
 
-  dioData(var data) async {
+  dioData(data) {
     emit(WeatherLoadingState());
-    Response response;
-    var dio = Dio();
-    response = await dio.get(ApiData.apiLink,
-        queryParameters: {"q": data, "days": "3", "lang": "en"});
-
-    if (response.statusCode == 200) {
-      weatherData = WeatherData.fromJson(response.data);
+    InternetServices.dioData(
+      dataMap: {"q": data, "days": 3},
+      url: ApiData.apiLink,
+      responseData: weatherData,
+    ).then((response) {
+      if (response.statusCode == 200) {
+        weatherData = WeatherData.fromJson(response.data);
+      }
       emit(WeatherSuccessState());
-    }
+    });
   }
 
   String? getImage(int weatherCode) {

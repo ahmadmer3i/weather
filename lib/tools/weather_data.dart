@@ -2,7 +2,6 @@ class WeatherData {
   ForecastData? forecastData;
   Location? location;
   Current? current;
-  WeatherData({required this.location, required this.current});
   WeatherData.fromJson(Map<String, dynamic> json) {
     location = Location.fromJson(json);
     current = Current.fromJson(json);

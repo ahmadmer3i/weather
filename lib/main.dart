@@ -19,6 +19,7 @@ class MyApp extends StatelessWidget {
       create: (context) => WeatherCubit()..getCurrentPosition(),
       child: MaterialApp(
         title: 'Flutter Demo',
+        themeMode: ThemeMode.system,
         theme: ThemeData(
           primarySwatch: Colors.blue,
         ),
